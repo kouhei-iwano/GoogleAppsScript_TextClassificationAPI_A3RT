@@ -1,28 +1,16 @@
-function doGet(e) {
-  let template = HtmlService.createTemplateFromFile("index")
-  template.result = "判定結果"
-  template.question = "「判定」をクリックすると、結果がここに表示されます。"
+function doPost(e){
 
-  return template.evaluate()
-
-}
-function doPost(e) {
+  //パラメータの取得
   let question = e.parameter.question
-  let endPoint = PropertiesService.getScriptProperties().getProperty("ENDPOINT")
-  const requestPayload = {
-    "question": question
 
-  }
-  const requestHeader = {
-    "method": "POST",
-    "payload": requestPayload,
+  //判別
+  let service = new TextClassifyService()
+  let category = service.execute(question)
 
-  }
-  let response = UrlFetchApp.fetch(endPoint, requestHeader)
-  let template = HtmlService.createTemplateFromFile("index")
-  const responseJson = JSON.parse(response)
-  template.question = responseJson.text
-  template.result = responseJson.category
+  //レスポンス整形
+  let json = new TextCategorizeJson()
+  let textOutput = json.createResponce(question, category)
 
-  return template.evaluate()
+  return textOutput
+  
 }
